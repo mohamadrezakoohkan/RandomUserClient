@@ -8,7 +8,7 @@
 import Foundation
 import ProjectDescriptionHelpers
 
-let project = Graph.shared.commonUI.project(
+let project = Graph.shared.entities.project(
     targets: [
         ModuleTarget(type: .main)
     ]

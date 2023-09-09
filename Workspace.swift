@@ -8,7 +8,7 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let MAIN_PROJECT_NAME = Constants.shared.APP_NAME
+let MAIN_PROJECT_NAME = Constants.shared.APP_NAME_VALUE
 let WORKSPACE_NAME = MAIN_PROJECT_NAME
 let SCHEME_NAME = "Bootstrap"
 let MODULES = Graph.shared.allModules
@@ -31,7 +31,7 @@ let testTargets: [TestableTarget] = targets.map { target -> TestableTarget in
     )
 }
 
-let productionScheme = Scheme(
+let scheme = Scheme(
     name: SCHEME_NAME,
     shared: true,
     buildAction: .buildAction(
@@ -64,43 +64,10 @@ let productionScheme = Scheme(
     )
 )
 
-let developmentScheme = Scheme(
-    name: "\(SCHEME_NAME)-Development",
-    shared: true,
-    buildAction: .buildAction(
-        targets: targets
-    ),
-    testAction: .targets(
-        testTargets,
-        configuration: BuildConfiguration.debugDevelopment.configName,
-        options: .options(
-            coverage: true,
-            codeCoverageTargets: targets
-        ),
-        diagnosticsOptions: [.mainThreadChecker, .performanceAntipatternChecker]
-    ),
-    runAction: .runAction(
-        configuration: BuildConfiguration.debugDevelopment.configName,
-        executable: targets.first(where: { $0.targetName == MAIN_PROJECT_NAME }),
-        diagnosticsOptions: [.mainThreadChecker, .performanceAntipatternChecker]
-    ),
-    archiveAction: .archiveAction(
-        configuration: BuildConfiguration.releaseDevelopment.configName,
-        revealArchiveInOrganizer: true
-    ),
-    profileAction: .profileAction(
-        configuration: BuildConfiguration.releaseDevelopment.configName,
-        executable: targets.first(where: { $0.targetName == MAIN_PROJECT_NAME })
-    ),
-    analyzeAction: .analyzeAction(
-        configuration: BuildConfiguration.debugDevelopment.configName
-    )
-)
-
 let workspace = Workspace(
     name: WORKSPACE_NAME,
     projects: MODULES.map(\.projectPath),
-    schemes: [productionScheme, developmentScheme],
+    schemes: [scheme],
     additionalFiles: [],
     generationOptions: Workspace.GenerationOptions.options(
         renderMarkdownReadme: true

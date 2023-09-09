@@ -10,9 +10,7 @@ import ProjectDescription
 
 public enum BuildConfiguration: String, CaseIterable {
     case debug = "Debug"
-    case debugDevelopment = "Debug-Development"
     case release = "Release"
-    case releaseDevelopment = "Release-Development"
     
     public var configName: ProjectDescription.ConfigurationName {
         return .configuration(rawValue)
@@ -21,9 +19,9 @@ public enum BuildConfiguration: String, CaseIterable {
     public var projectConfiguration: ProjectDescription.Configuration {
         let xcconfigPath = Path.relativeToRoot("Configurations/\(rawValue).xcconfig")
         switch self {
-        case .debug, .debugDevelopment:
+        case .debug:
             return .debug(name: configName, xcconfig: xcconfigPath)
-        case .release, .releaseDevelopment:
+        case .release:
             return .release(name: configName, xcconfig: xcconfigPath)
         }
     }

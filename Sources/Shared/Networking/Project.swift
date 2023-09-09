@@ -8,8 +8,9 @@
 import Foundation
 import ProjectDescriptionHelpers
 
-let project = Graph.shared.commonUI.project(
+let project = Graph.shared.networking.project(
     targets: [
-        ModuleTarget(type: .main)
+        ModuleTarget(type: .main),
+        ModuleTarget(type: .unitTests)
     ]
 )

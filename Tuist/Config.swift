@@ -1,7 +1,6 @@
 import ProjectDescription
 
 let config = Config(
-    plugins: [
-        .local(path: .relativeToManifest("../../Plugins/Zz")),
-    ]
+    cache: Cache.cache(path: .relativeToRoot("Cache")),
+    plugins: []
 )

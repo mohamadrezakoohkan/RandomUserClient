@@ -47,12 +47,7 @@ public struct Module: Hashable {
     /// Path to .swift, .m, .h files of the project
     ///
     public func sourceCodePattern(forTarget target: String) -> SourceFilesList {
-        if target == name && type != .launcher {
-            return [
-                "Sources/**/{*.swift,*.h,*.m}",
-                "Interfaces/**/{*.swift,*.h,*.m}"
-            ]
-        } else if target == name && type == .launcher {
+        if target == name {
             return "Sources/**/{*.swift,*.h,*.m}"
         } else {
             return "\(target)/**/{*.swift,*.h,*.m}"
@@ -107,7 +102,7 @@ public struct Module: Hashable {
         targets: [ModuleTarget]
     ) -> ProjectDescription.Project {
         
-        let newBaseSettings = baseSettings(fromSettings: newSettings)
+        let newBaseSettings = baseSettings(fromSettings: newSettings, forProject: projectName ?? name)
         let excludingKeysFromDefaultSettings: Set<String> = Set(newBaseSettings.keys.map { $0 })
         let settings = Settings.settings(
             base: newBaseSettings,
@@ -124,7 +119,7 @@ public struct Module: Hashable {
                 let targetExtension = moduleTarget.type.extensionName
                 let targetName = targetExtension == "" ? name : targetExtension
                 let targetDependencies = moduleTarget.dependencies
-               return target(targetName, settings: settings, dependencies: targetDependencies)
+                return target(targetName, settings: settings, dependencies: targetDependencies)
             }
         )
     }
@@ -164,9 +159,14 @@ public struct Module: Hashable {
         targetName == name
     }
     
-    private func baseSettings(fromSettings settings: SettingsDictionary = SettingsDictionary()) -> SettingsDictionary {
-        if type == .launcher {
+    private func baseSettings(
+        fromSettings settings: SettingsDictionary = SettingsDictionary(),
+        forProject projectName: String
+    ) -> SettingsDictionary {
+        if type == .launcher && projectName == Constants.shared.APP_NAME_VALUE {
             return settings.merging([
+                "PRODUCT_NAME": .string("$(APP_NAME)"),
+                "PRODUCT_BUNDLE_IDENTIFIER": .string("$(APP_BUNDLE_ID)"),
                 "ASSETCATALOG_COMPILER_APPICON_NAME": .string("$(APP_ICON)"),
                 "ONLY_ACTIVE_ARCH": .string("YES"),
                 "ENABLE_TESTABILITY": .string("YES")

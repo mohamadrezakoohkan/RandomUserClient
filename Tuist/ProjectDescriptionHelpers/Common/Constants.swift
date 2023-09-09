@@ -13,7 +13,7 @@ public struct Constants {
     private init() { }
     public static let shared = Constants()
     
-    public let APP_NAME = "RandomUserClient"
+    public let APP_NAME_VALUE = "RandomUserClient"
     public let APP_DEPLOYMENT_TARGET = "14.0"
     public let APP_BUNDLE_ID = "$(APP_BUNDLE_ID)"
     public let APP_ORGANIZATION = "RandomUser"
