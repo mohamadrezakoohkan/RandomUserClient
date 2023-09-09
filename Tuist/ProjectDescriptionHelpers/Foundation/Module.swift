@@ -1,0 +1,214 @@
+//
+//  Module.swift
+//  RandomUserClientManifests
+//
+//  Created by Mohammad reza on 9.09.2023.
+//
+
+import Foundation
+import ProjectDescription
+
+public enum ModuleType: String {
+    case launcher
+    case feature
+    case shared
+}
+
+public struct Module: Hashable {
+
+    /// Type of module
+    ///
+    public let type: ModuleType
+    
+    /// Project name to be defined in Project.swift
+    ///
+    public let name: String
+    
+    /// Bundle ID for project to be defined in Project.swift
+    ///
+    public let bundleID: String
+    
+    /// Path to Project.swift
+    ///
+    public let projectPath: ProjectDescription.Path
+    
+    public init(
+        type: ModuleType,
+        name: String,
+        bundleID: String? = nil,
+        projectPath: ProjectDescription.Path? = nil
+    ) {
+        self.type = type
+        self.name = name
+        self.bundleID = bundleID ?? Self.automaticGeneratedBundleID(withType: type, name: name)
+        self.projectPath = projectPath ?? Self.automaticGeneratedProjectPath(withType: type, name: name)
+    }
+    
+    /// Path to .swift, .m, .h files of the project
+    ///
+    public func sourceCodePattern(forTarget target: String) -> SourceFilesList {
+        if target == name && type != .launcher {
+            return [
+                "Sources/**/{*.swift,*.h,*.m}",
+                "Interfaces/**/{*.swift,*.h,*.m}"
+            ]
+        } else if target == name && type == .launcher {
+            return "Sources/**/{*.swift,*.h,*.m}"
+        } else {
+            return "\(target)/**/{*.swift,*.h,*.m}"
+        }
+    }
+    
+    /// Path to any resources that you need to be copied into final binary bundle
+    ///
+    public func resourceFilePattern(forTarget target: String) -> ResourceFileElements {
+        if target == name {
+            return "Resources/**/{*.strings,*.xcassets,*.storyboard,*.xib,GoogleService-Info.plist,*.json,*.ttf,*.mp3}"
+        } else {
+            return "\(target)/**/{*.strings,*.xcassets,*.storyboard,*.xib,GoogleService-Info.plist,*.json,*.ttf,*.mp3}"
+        }
+    }
+    
+    /// Returns name for specific project target
+    ///
+    public func nameFor(forTarget target: String) -> String {
+        return isMainTarget(target) ? name : name + target
+    }
+    
+    /// Returns bundleID for specific project target
+    ///
+    public func bundleID(forTarget target: String) -> String {
+        return isMainTarget(target) ? bundleID : bundleID + target
+    }
+    
+    /// Returns info.plist for specific project target
+    ///
+    public func infoPlist(forTarget target: String, isLauncher: Bool) -> InfoPlist {
+        var extendingPlist: [String: InfoPlist.Value] = [:]
+        if isLauncher {
+            extendingPlist["UIApplicationSupportsIndirectInputEvents"] = .boolean(true)
+            extendingPlist["UILaunchStoryboardName"] = .string("LaunchScreen")
+        }
+        return InfoPlist.extendingDefault(
+            with: Constants.shared.DEFAULT_INFO_PLIST(
+                name: name,
+                bundleID: bundleID,
+                moduleType: type,
+                extendingWith: extendingPlist
+            )
+        )
+    }
+    
+    public func project(
+        projectName: String? = nil,
+        infoPlist: InfoPlist? = nil,
+        options: Project.Options = Project.Options.options(),
+        settings newSettings: SettingsDictionary = SettingsDictionary(),
+        targets: [ModuleTarget]
+    ) -> ProjectDescription.Project {
+        
+        let newBaseSettings = baseSettings(fromSettings: newSettings)
+        let excludingKeysFromDefaultSettings: Set<String> = Set(newBaseSettings.keys.map { $0 })
+        let settings = Settings.settings(
+            base: newBaseSettings,
+            configurations: BuildConfiguration.allCases.map(\.projectConfiguration),
+            defaultSettings: .recommended(excluding: excludingKeysFromDefaultSettings)
+        )
+        
+        return Project(
+            name: projectName ?? name,
+            organizationName: Constants.shared.APP_ORGANIZATION,
+            options: options,
+            settings: settings,
+            targets: targets.map { moduleTarget -> Target in
+                let targetExtension = moduleTarget.type.extensionName
+                let targetName = targetExtension == "" ? name : targetExtension
+                let targetDependencies = moduleTarget.dependencies
+               return target(targetName, settings: settings, dependencies: targetDependencies)
+            }
+        )
+    }
+    
+    public func target(
+        _ targetName: String,
+        settings: Settings,
+        dependencies: [TargetDependency] = []
+    ) -> Target {
+        let isLauncher = type == .launcher && isMainTarget(targetName)
+        let isExample = targetName.contains(ModuleTargetType.example.extensionName)
+        let isUnitTest = targetName.contains(ModuleTargetType.unitTests.extensionName)
+        let internalDependencies: [TargetDependency] = !isMainTarget(targetName) ? [.target(name: name)] : []
+        return Target(
+            name: nameFor(forTarget: targetName),
+            platform: .iOS,
+            product: isLauncher || isExample ? .app : isUnitTest ? .unitTests : .framework,
+            bundleId: bundleID(forTarget: targetName),
+            deploymentTarget: deploymentTarget,
+            infoPlist: infoPlist(forTarget: targetName, isLauncher: isLauncher),
+            sources: sourceCodePattern(forTarget: targetName),
+            resources: resourceFilePattern(forTarget: targetName),
+            scripts: [],
+            dependencies: dependencies + internalDependencies,
+            settings: settings
+        )
+    }
+    
+    private var deploymentTarget: ProjectDescription.DeploymentTarget {
+        return ProjectDescription.DeploymentTarget.iOS(
+            targetVersion: Constants.shared.APP_DEPLOYMENT_TARGET,
+            devices: [.iphone, .ipad, .mac]
+        )
+    }
+    
+    private func isMainTarget(_ targetName: String) -> Bool {
+        targetName == name
+    }
+    
+    private func baseSettings(fromSettings settings: SettingsDictionary = SettingsDictionary()) -> SettingsDictionary {
+        if type == .launcher {
+            return settings.merging([
+                "ASSETCATALOG_COMPILER_APPICON_NAME": .string("$(APP_ICON)"),
+                "ONLY_ACTIVE_ARCH": .string("YES"),
+                "ENABLE_TESTABILITY": .string("YES")
+            ])
+        } else {
+            return settings
+        }
+    }
+    
+    public static func == (lhs: Module, rhs: Module) -> Bool {
+        lhs.name == rhs.name &&
+        lhs.type == rhs.type &&
+        lhs.bundleID == rhs.bundleID &&
+        lhs.projectPath.pathString == rhs.projectPath.pathString
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(type)
+        hasher.combine(bundleID)
+        hasher.combine(projectPath)
+    }
+}
+
+fileprivate extension Module {
+    
+    static func automaticGeneratedBundleID(withType type: ModuleType, name: String) -> String {
+        if type == .launcher {
+            return Constants.shared.APP_BUNDLE_ID
+        } else {
+            return "\(Constants.shared.APP_BUNDLE_ID).\(name)"
+        }
+    }
+    
+    static func automaticGeneratedProjectPath(withType type: ModuleType, name: String) -> ProjectDescription.Path {
+        switch type {
+        case .launcher:
+            return "\(Constants.shared.SOURCE_CODE_PATH_FROM_ROOT)\(name)"
+        case .shared:
+            return "\(Constants.shared.SOURCE_CODE_PATH_FROM_ROOT)Shared/\(name)"
+        case .feature:
+            return "\(Constants.shared.SOURCE_CODE_PATH_FROM_ROOT)Features/\(name)"
+        }
+    }
+}
