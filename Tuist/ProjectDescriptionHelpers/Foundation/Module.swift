@@ -118,7 +118,7 @@ public struct Module: Hashable {
             targets: targets.map { moduleTarget -> Target in
                 let targetExtension = moduleTarget.type.extensionName
                 let targetName = targetExtension == "" ? name : targetExtension
-                let targetDependencies = moduleTarget.dependencies
+                let targetDependencies = moduleTarget.dependencies.map { $0.targetDependency }
                 return target(targetName, settings: settings, dependencies: targetDependencies)
             }
         )

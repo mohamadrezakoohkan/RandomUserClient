@@ -28,9 +28,9 @@ public enum ModuleTargetType {
 public struct ModuleTarget {
     
     public let type: ModuleTargetType
-    public let dependencies: [TargetDependency]
+    public let dependencies: [Dependency]
     
-    public init(type: ModuleTargetType, dependencies: [TargetDependency] = []) {
+    public init(type: ModuleTargetType, dependencies: [Dependency] = []) {
         self.type = type
         self.dependencies = dependencies
     }
