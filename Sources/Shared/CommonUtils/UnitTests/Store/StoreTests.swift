@@ -50,7 +50,7 @@ final class StoreTests: XCTestCase {
         view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 3)
         view.dispatch(action: .decrease)
-        XCTAssertEqual(view.currentState?.amount, 3)
+        XCTAssertEqual(view.currentState?.amount, 2)
     }
 
     func testViewUnsubscribeForUpdateAndActions() {
@@ -61,6 +61,9 @@ final class StoreTests: XCTestCase {
         XCTAssertEqual(view.currentState?.amount, 1)
         view.viewDidDisappear(true)
         view.dispatch(action: .decrease)
+        view.dispatch(action: .decrease)
+        view.dispatch(action: .decrease)
+        view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 1)
         view.viewDidAppear(true)
         view.dispatch(action: .increase)

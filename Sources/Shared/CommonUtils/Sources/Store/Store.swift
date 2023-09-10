@@ -9,30 +9,37 @@
 import Foundation
 import RxSwift
 
-open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect> {
+open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoordinator: Coordinator>: ViewStore {
     
     private let _state: BehaviorSubject<AnyState>
-    internal var state: Observable<AnyState> {
+    public var state: Observable<AnyState> {
         return _state.asObservable()
     }
     
     private var actionDisposeBag = DisposeBag()
     private let _action: PublishSubject<AnyAction>
-    internal var action: AnyObserver<AnyAction> {
+    public var action: AnyObserver<AnyAction> {
         return _action.asObserver()
     }
+    
+    public weak var coordinator: AnyCoordinator?
     
     public init(initialState: AnyState) {
         self._state = BehaviorSubject<AnyState>.init(value: initialState)
         self._action = PublishSubject<AnyAction>.init()
     }
     
-    open func handle(_ action: AnyAction, currentState: AnyState, sendEffect: @escaping (AnyEffect) -> Void) {
-        fatalError("handle(action:effect:) not implemented by children \(self)")
+    open func handle(
+        _ action: AnyAction,
+        currentState: AnyState,
+        sendEffect: @escaping (AnyEffect) -> Void,
+        sendAction: @escaping (AnyAction) -> Void
+    ) {
+        fatalError("handle(action:currentState:sendEffect:sendAction:) not implemented by subclass \(self)")
     }
     
     open func reduce(_ effect: AnyEffect, currentState: AnyState) -> AnyState {
-        fatalError("reduce(effect:) not implemented by children \(self)")
+        fatalError("reduce(effect:currentState:) not implemented by subclass \(self)")
     }
     
     private func dispatch(_ action: AnyAction) {
@@ -41,6 +48,9 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect> {
             handle(action, currentState: currentState) { [weak self] effect in
                 guard let self else { return }
                 self._state.onNext(reduce(effect, currentState: currentState))
+            } sendAction: { [weak self] action in
+                guard let self else { return }
+                self._action.onNext(action)
             }
         } catch {
             #if DEBUG

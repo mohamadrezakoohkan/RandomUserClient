@@ -10,10 +10,10 @@ import Foundation
 import UIKit
 import RxSwift
 
-open class BaseViewController<AnyStore: Store<S, A, E>, S: State, A: Action, E: Effect>: UIViewController {
+open class BaseViewController<AnyViewStore: ViewStore>: UIViewController {
     
     public let disposeBag = DisposeBag()
-    public var store: AnyStore!
+    public var store: AnyViewStore!
     
     open override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,11 +32,11 @@ open class BaseViewController<AnyStore: Store<S, A, E>, S: State, A: Action, E: 
         store.unsubscribe()
     }
     
-    open func update(withState state: S) {
+    open func update(withState state: AnyViewStore.AnyState) {
         
     }
     
-    public func dispatch(action: A) {
+    public func dispatch(action: AnyViewStore.AnyAction) {
         store.action.onNext(action)
     }
 }
