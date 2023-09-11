@@ -9,7 +9,7 @@
 import Foundation
 @testable import CommonUtils
 
-final class SpyView: BaseViewController<MockStore> {
+final class SpyView: ViewController<MockStore> {
     
     private (set) var stateUpdated: Bool = false
     private (set) var currentState: MockState?

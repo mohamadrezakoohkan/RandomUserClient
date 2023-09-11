@@ -22,11 +22,13 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoord
         return _action.asObserver()
     }
     
+    public let schedular: ImmediateSchedulerType
     public weak var coordinator: AnyCoordinator?
     
-    public init(initialState: AnyState) {
+    public init(initialState: AnyState, schedular: ImmediateSchedulerType = MainScheduler.asyncInstance) {
         self._state = BehaviorSubject<AnyState>.init(value: initialState)
         self._action = PublishSubject<AnyAction>.init()
+        self.schedular = schedular
     }
     
     open func handle(
@@ -55,14 +57,16 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoord
         } catch {
             #if DEBUG
             print("dispatch(action:) failed to read state \(self)")
-            #endif
+#endif
         }
     }
     
     public func subscribe() {
-        _action.subscribe(onNext: { [weak self] action in
-            self?.dispatch(action)
-        }).disposed(by: actionDisposeBag)
+        _action
+            .observe(on: schedular)
+            .subscribe(onNext: { [weak self] action in
+                self?.dispatch(action)
+            }).disposed(by: actionDisposeBag)
     }
     
     public func unsubscribe() {

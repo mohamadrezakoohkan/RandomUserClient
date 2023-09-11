@@ -33,15 +33,13 @@ final class StartupStore: Store<StartupState, StartupAction, StartupEffect, Intr
             sendEffect(.setLoading(true))
             sendAction(.connect)
         case .connect:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-                self?.coordinator?.showTabBar()
+            //
+            // This lines of code demonstrate networking tasks or connection to a socket server
+            //
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: { [self] in
+                coordinator?.showTabBar()
                 sendEffect(.setConnection(true))
-            }
-            
-//            if failed {
-//                sendEffect(.setConnection(false))
-//            }
-
+            })
         case .disappear:
             sendEffect(.setLoading(false))
         }
@@ -55,5 +53,4 @@ final class StartupStore: Store<StartupState, StartupAction, StartupEffect, Intr
             return StartupState(isLoading: currentState.isLoading, isConnected: isConncected)
         }
     }
-    
 }

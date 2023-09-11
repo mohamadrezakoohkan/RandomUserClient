@@ -38,8 +38,10 @@ open class Coordinator: NSObject {
     ///
     /// - Parameter navigationController: The navigation controller to be used for navigation.
     ///
-    public required init(navigationController: UINavigationController) {
+    public init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+        super.init()
+        navigationController.delegate = self
     }
     
     /// Starts the coordination process.
@@ -92,5 +94,41 @@ open class Coordinator: NSObject {
             })?.value
         }
         return self
+    }
+}
+
+extension Coordinator: UINavigationControllerDelegate {
+    
+    /// This method release any pushed coordinator
+    ///
+   public func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        guard let transitionCoordinator = navigationController.transitionCoordinator,
+              let fromViewController = transitionCoordinator.viewController(forKey: .from),
+              let toViewController = transitionCoordinator.viewController(forKey: .to),
+              !navigationController.viewControllers.contains(fromViewController),
+              navigationController.viewControllers.contains(toViewController),
+              let fromContainer = fromViewController as? (any ViewStoreContainer),
+              let toContainer = toViewController as? (any ViewStoreContainer),
+              let fromCoordinator = fromContainer.store.coordinator,
+              let toCoordinator = toContainer.store.coordinator,
+              fromCoordinator.identifier != toCoordinator.identifier
+       else { return }
+       release(coordinator: fromCoordinator)
+   }
+}
+
+extension Coordinator: UIAdaptivePresentationControllerDelegate {
+
+    /// This method release any presented coordinator
+    ///
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        let presentedViewController = presentationController.presentedViewController
+        guard let presentedNavigationController = presentedViewController as? UINavigationController,
+              let topViewController = presentedNavigationController.topViewController,
+              let storeContainerViewController = topViewController as? (any ViewStoreContainer),
+              let coordinator = storeContainerViewController.store.coordinator else {
+            return
+        }
+        release(coordinator: coordinator)
     }
 }

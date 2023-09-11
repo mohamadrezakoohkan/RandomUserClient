@@ -8,6 +8,7 @@
 
 import Foundation
 import XCTest
+import RxSwift
 @testable import CommonUtils
 
 final class StoreTests: XCTestCase {
@@ -18,9 +19,8 @@ final class StoreTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        store = MockStore(initialState: initialState)
-        view = SpyView()
-        view.store = store
+        store = MockStore(initialState: initialState, schedular: CurrentThreadScheduler.instance)
+        view = SpyView(store: store, schedular: CurrentThreadScheduler.instance)
     }
     
     override func tearDown() {
@@ -42,7 +42,7 @@ final class StoreTests: XCTestCase {
         view.viewDidLoad()
         view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 0)
-        view.viewDidAppear(true)
+        view.viewWillAppear(true)
         XCTAssertEqual(view.currentState?.amount, 0)
         view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 1)
@@ -56,7 +56,7 @@ final class StoreTests: XCTestCase {
     func testViewUnsubscribeForUpdateAndActions() {
         XCTAssertNil(view.currentState)
         view.viewDidLoad()
-        view.viewDidAppear(true)
+        view.viewWillAppear(true)
         view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 1)
         view.viewDidDisappear(true)
@@ -65,7 +65,7 @@ final class StoreTests: XCTestCase {
         view.dispatch(action: .decrease)
         view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 1)
-        view.viewDidAppear(true)
+        view.viewWillAppear(true)
         view.dispatch(action: .increase)
         XCTAssertEqual(view.currentState?.amount, 2)
     }

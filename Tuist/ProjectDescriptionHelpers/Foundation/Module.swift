@@ -94,6 +94,11 @@ public struct Module: Hashable {
         )
     }
     
+    
+    public var targetDependency: TargetDependency {
+        return TargetDependency.project(target: name, path: Path.relativeToRoot(projectPath.pathString))
+    }
+    
     public func project(
         projectName: String? = nil,
         infoPlist: InfoPlist? = nil,
@@ -110,6 +115,27 @@ public struct Module: Hashable {
             defaultSettings: .recommended(excluding: excludingKeysFromDefaultSettings)
         )
         
+        var sharedDependencies: [Dependency] = []
+        if type != .shared {
+            sharedDependencies = [
+                .commonUtils,
+                .commonUI,
+                .entities,
+                .networking,
+                .storage
+            ]
+        }
+        
+        if type == .launcher {
+            sharedDependencies.append(contentsOf: [
+                .bookmarks,
+                .intro,
+                .tabBar,
+                .userCatalog,
+                .settings
+            ])
+        }
+        
         return Project(
             name: projectName ?? name,
             organizationName: Constants.shared.APP_ORGANIZATION,
@@ -119,7 +145,7 @@ public struct Module: Hashable {
                 let targetExtension = moduleTarget.type.extensionName
                 let targetName = targetExtension == "" ? name : targetExtension
                 let targetDependencies = moduleTarget.dependencies.map { $0.targetDependency }
-                return target(targetName, settings: settings, dependencies: targetDependencies)
+                return target(targetName, settings: settings, dependencies: targetDependencies + sharedDependencies.map(\.targetDependency))
             }
         )
     }
