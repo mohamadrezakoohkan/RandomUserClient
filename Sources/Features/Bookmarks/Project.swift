@@ -8,7 +8,7 @@
 import Foundation
 import ProjectDescriptionHelpers
 
-let project = Graph.shared.tabBar.project(
+let project = Graph.shared.bookmarks.project(
     targets: [
         ModuleTarget(type: .main),
         ModuleTarget(type: .example),

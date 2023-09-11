@@ -43,6 +43,7 @@ public class Graph {
     public let tabBar = Module(type: .feature, name: "TabBar")
     public let userCatalog = Module(type: .feature, name: "UserCatalog")
     public let bookmarks = Module(type: .feature, name: "Bookmarks")
+    public let settings = Module(type: .feature, name: "Settings")
     
     public var allModules: [Module] {
         [
