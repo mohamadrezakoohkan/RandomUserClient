@@ -7,9 +7,18 @@
 //
 
 import Foundation
+import UIKit
 import CommonUtils
+import Services
 
 public final class BookmarksCoordinator: Coordinator {
+    
+    private let userService: UserService
+    
+    public init(navigationController: UINavigationController, userService: UserService) {
+        self.userService = userService
+        super.init(navigationController: navigationController)
+    }
     
     public override func start() {
         let store = BookmarksListStore(initialState: .init())

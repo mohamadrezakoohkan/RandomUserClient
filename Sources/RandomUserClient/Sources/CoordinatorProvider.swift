@@ -9,44 +9,76 @@
 import Foundation
 import UIKit
 import CommonUtils
+import Services
 import Intro
 import TabBar
 import UserCatalog
 import Bookmarks
 import Settings
 
+
 final class IntroCoordinatorProvider: ExternalCoordinatorProvider {
+    
+    fileprivate let serviceProvider: ServiceProvider
+    
+    internal init(serviceProvider: ServiceProvider) {
+        self.serviceProvider = serviceProvider
+    }
+    
     func getCoordinator(_ navigationController: UINavigationController) -> Coordinator {
         IntroCoordinator(
             navigationController: navigationController,
-            tabBarCoordinatorProvider: TabBarCoordinatorProvider()
+            tabBarCoordinatorProvider: TabBarCoordinatorProvider(serviceProvider: serviceProvider)
         )
     }
 }
 
 final class TabBarCoordinatorProvider: ExternalCoordinatorProvider {
+    
+    fileprivate let serviceProvider: ServiceProvider
+    
+    fileprivate init(serviceProvider: ServiceProvider) {
+        self.serviceProvider = serviceProvider
+    }
+    
     func getCoordinator(_ navigationController: UINavigationController) -> Coordinator {
         TabBarCoordinator(
             navigationController: navigationController,
-            userCatalogCoordinatorProvider: UserCatalogCoordinatorProvider(),
-            bookmarksCoordinatorProvider: BookmarksCoordinatorProvider(),
+            userCatalogCoordinatorProvider: UserCatalogCoordinatorProvider(serviceProvider: serviceProvider),
+            bookmarksCoordinatorProvider: BookmarksCoordinatorProvider(serviceProvider: serviceProvider),
             settingsCoordinatorProvider: SettingsCoordinatorProvider()
         )
     }
 }
 
 final class UserCatalogCoordinatorProvider: ExternalCoordinatorProvider {
+    
+    fileprivate let serviceProvider: ServiceProvider
+    
+    fileprivate init(serviceProvider: ServiceProvider) {
+        self.serviceProvider = serviceProvider
+    }
+    
     func getCoordinator(_ navigationController: UINavigationController) -> Coordinator {
         UserCatalogCoordinator(
-            navigationController: navigationController
+            navigationController: navigationController,
+            userService: serviceProvider.userService
         )
     }
 }
 
 final class BookmarksCoordinatorProvider: ExternalCoordinatorProvider {
+    
+    fileprivate let serviceProvider: ServiceProvider
+    
+    fileprivate init(serviceProvider: ServiceProvider) {
+        self.serviceProvider = serviceProvider
+    }
+    
     func getCoordinator(_ navigationController: UINavigationController) -> Coordinator {
         BookmarksCoordinator(
-            navigationController: navigationController
+            navigationController: navigationController,
+            userService: serviceProvider.userService
         )
     }
 }

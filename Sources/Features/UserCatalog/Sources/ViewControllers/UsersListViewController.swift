@@ -14,6 +14,11 @@ import RxSwift
 
 final class UsersListViewController: BaseViewController<UsersListStore> {
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        dispatch(action: .appear)
+    }
+    
     override func update(fromStream stateObservable: Observable<UsersListState>) {
         
     }

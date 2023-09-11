@@ -23,6 +23,7 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoord
     }
     
     public let schedular: ImmediateSchedulerType
+    public let disposeBag = DisposeBag()
     public weak var coordinator: AnyCoordinator?
     
     public init(initialState: AnyState, schedular: ImmediateSchedulerType = MainScheduler.asyncInstance) {
