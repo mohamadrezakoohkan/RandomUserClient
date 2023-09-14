@@ -66,7 +66,7 @@ public struct Module: Hashable {
     
     /// Returns name for specific project target
     ///
-    public func nameFor(forTarget target: String) -> String {
+    public func name(forTarget target: String) -> String {
         return isMainTarget(target) ? name : name + target
     }
     
@@ -115,15 +115,17 @@ public struct Module: Hashable {
             defaultSettings: .recommended(excluding: excludingKeysFromDefaultSettings)
         )
         
-        var sharedDependencies: [Dependency] = []
+        var sharedDependencies: [Dependency] = [.rxSwift, .rxCocoa]
+        
         if type != .shared {
-            sharedDependencies = [
+            sharedDependencies.append(contentsOf: [
                 .commonUtils,
                 .commonUI,
                 .entities,
                 .networking,
-                .storage
-            ]
+                .storage,
+                .services
+            ])
         }
         
         if type == .launcher {
@@ -145,8 +147,15 @@ public struct Module: Hashable {
                 let targetExtension = moduleTarget.type.extensionName
                 let targetName = targetExtension == "" ? name : targetExtension
                 let targetDependencies = moduleTarget.dependencies.map { $0.targetDependency }
+                var runnerName: String? = nil
+                
+                if let projectRunnerTarget = targets.first(where: { $0.type == .example }) {
+                    runnerName = name(forTarget: projectRunnerTarget.type.extensionName)
+                }
+                
                 return target(
                     targetName,
+                    runnerTargetName: runnerName,
                     settings: settings,
                     dependencies: targetDependencies + sharedDependencies.map(\.targetDependency),
                     coreDataModels: moduleTarget.coreDataModels
@@ -157,6 +166,7 @@ public struct Module: Hashable {
     
     public func target(
         _ targetName: String,
+        runnerTargetName: String?,
         settings: Settings,
         dependencies: [TargetDependency] = [],
         coreDataModels: [CoreDataModel]
@@ -165,8 +175,10 @@ public struct Module: Hashable {
         let isExample = targetName.contains(ModuleTargetType.example.extensionName)
         let isUnitTest = targetName.contains(ModuleTargetType.unitTests.extensionName)
         let internalDependencies: [TargetDependency] = !isMainTarget(targetName) ? [.target(name: name)] : []
+        let testHostAppDependencies: [TargetDependency] = isUnitTest && (runnerTargetName != nil) ? [.target(name: runnerTargetName!)] : []
+
         return Target(
-            name: nameFor(forTarget: targetName),
+            name: name(forTarget: targetName),
             platform: .iOS,
             product: isLauncher || isExample ? .app : isUnitTest ? .unitTests : .framework,
             bundleId: bundleID(forTarget: targetName),
@@ -175,7 +187,7 @@ public struct Module: Hashable {
             sources: sourceCodePattern(forTarget: targetName),
             resources: resourceFilePattern(forTarget: targetName),
             scripts: [],
-            dependencies: dependencies + internalDependencies,
+            dependencies: dependencies + internalDependencies + testHostAppDependencies,
             settings: settings,
             coreDataModels: coreDataModels
         )
