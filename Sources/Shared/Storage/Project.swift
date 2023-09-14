@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Graph.shared.storage.project(
     targets: [
-        ModuleTarget(type: .main),
+        ModuleTarget(type: .main, dependencies: [.rxSwift], coreDataModels: [CoreDataModel("Storage.xcdatamodeld")]),
         ModuleTarget(type: .unitTests)
     ]
 )

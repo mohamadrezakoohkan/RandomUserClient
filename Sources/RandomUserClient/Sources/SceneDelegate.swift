@@ -9,6 +9,7 @@
 import UIKit
 import CommonUtils
 import Networking
+import Storage
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -20,7 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         let httpClient = HttpClient()
-        let serviceProvider = ServiceProvider(httpClient: httpClient)
+        let storage = CoreDataStorage()
+        let serviceProvider = ServiceProvider(httpClient: httpClient, storage: storage)
         let navigationController = UINavigationController()
         coordinator = AppCoordinator(navigationController: navigationController, serviceProvider: serviceProvider)
         window?.rootViewController = navigationController

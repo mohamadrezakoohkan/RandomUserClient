@@ -15,7 +15,7 @@ import Entities
 struct UsersListState: State {
     let allUsers: [User]
     let users: [User]
-    let bookmarks: [UserID]
+    let bookmarks: [User]
 }
 
 enum UsersListAction: Action {
@@ -27,7 +27,7 @@ enum UsersListAction: Action {
 
 enum UsersListEffect: Effect {
     case setUsers([User])
-    case setBookmarks([UserID])
+    case setBookmarks([User])
     case addUsers([User])
     case filterUsers([User])
 }
@@ -36,24 +36,32 @@ final class UsersListStore: Store<UsersListState, UsersListAction, UsersListEffe
     
     private let seed = "unique"
     private let userService: UserService
+    private let bookmarkService: BookmarkService
     private let resultsPerPage: Int
     private var page: Int
     
     init(
         initialState: UsersListState = .init(allUsers: [], users: [], bookmarks: []),
         userService: UserService,
+        bookmarkService: BookmarkService,
         resultsPerPage: Int = 10,
         page: Int = 1
     ) {
         self.userService = userService
+        self.bookmarkService = bookmarkService
         self.resultsPerPage = resultsPerPage
         self.page = page
         super.init(initialState: initialState)
     }
     
-    override func handle(_ action: UsersListAction, currentState: UsersListState, sendEffect: @escaping (UsersListEffect) -> Void, sendAction: @escaping (UsersListAction) -> Void) {
+    override func handle(_ action: UsersListAction, sendEffect: @escaping (UsersListEffect) -> Void, sendAction: @escaping (UsersListAction) -> Void) {
         switch action {
         case .appear:
+            bookmarkService.getBookmarks()
+                .subscribe(onSuccess: { bookmarks in
+                    sendEffect(.setBookmarks(bookmarks))
+                }).disposed(by: disposeBag)
+            
             guard currentState.users.isEmpty else { return }
             fetchUsers().subscribe(onSuccess: { newUsers in
                 sendEffect(.setUsers(newUsers))
@@ -65,15 +73,17 @@ final class UsersListStore: Store<UsersListState, UsersListAction, UsersListEffe
         case let .selected(index):
             guard !currentState.users.isEmpty, index < currentState.users.count else { return }
             let selectedUser = currentState.users[index]
-            let newBookmarks: [UserID]
-            if currentState.bookmarks.contains(selectedUser.id) {
-                newBookmarks = currentState.bookmarks.filter { $0 != selectedUser.id }
+            if currentState.bookmarks.contains(selectedUser) {
+                bookmarkService.deleteBookmark(selectedUser)
+                    .subscribe(onSuccess: { bookmarks in
+                        sendEffect(.setBookmarks(bookmarks))
+                    }).disposed(by: disposeBag)
             } else {
-                newBookmarks = currentState.bookmarks + [selectedUser.id]
+                bookmarkService.addBookmark(selectedUser)
+                    .subscribe(onSuccess: { bookmarks in
+                        sendEffect(.setBookmarks(bookmarks))
+                    }).disposed(by: disposeBag)
             }
-            
-            UserDefaults.standard.setValue(newBookmarks, forKey: "\(seed).bookmarks")
-            sendEffect(.setBookmarks(newBookmarks))
             
         case let .search(query):
             if query == nil || query == "" {

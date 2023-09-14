@@ -10,7 +10,7 @@ import ProjectDescriptionHelpers
 
 let project = Graph.shared.services.project(
     targets: [
-        ModuleTarget(type: .main, dependencies: [.networking]),
+        ModuleTarget(type: .main, dependencies: [.networking, .storage, .entities]),
         ModuleTarget(type: .unitTests)
     ]
 )

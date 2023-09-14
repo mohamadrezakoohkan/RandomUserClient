@@ -29,9 +29,11 @@ public struct ModuleTarget {
     
     public let type: ModuleTargetType
     public let dependencies: [Dependency]
+    public let coreDataModels: [CoreDataModel]
     
-    public init(type: ModuleTargetType, dependencies: [Dependency] = []) {
+    public init(type: ModuleTargetType, dependencies: [Dependency] = [], coreDataModels: [CoreDataModel] = []) {
         self.type = type
         self.dependencies = dependencies
+        self.coreDataModels = coreDataModels
     }
 }

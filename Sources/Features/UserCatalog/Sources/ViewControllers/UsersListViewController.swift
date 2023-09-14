@@ -13,10 +13,6 @@ import CommonUI
 import RxSwift
 import RxCocoa
 
-fileprivate enum UsersListSection {
-    case all
-}
-
 final class UsersListViewController: BaseViewController<UsersListStore> {
     
     private let searchBar: UISearchBar = {
@@ -29,10 +25,12 @@ final class UsersListViewController: BaseViewController<UsersListStore> {
     
     private let tableView: UITableView = {
         let tableView = UITableView()
+        let cellIdentifier = String(describing: UserDetailTableViewCell.self)
         tableView.backgroundColor = .clear
         tableView.clipsToBounds = true
         tableView.separatorStyle = .none
-        tableView.rowHeight = 120
+        tableView.rowHeight = UserDetailTableViewCell.rowHeight
+        tableView.register(UserDetailTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
         return tableView
     }()
     
@@ -81,11 +79,13 @@ final class UsersListViewController: BaseViewController<UsersListStore> {
             .disposed(by: disposeBag)
         
         usersObservable
-        // map or compine with latest state.bookmarks, to be able to cell.isBookmarked = bookmarks.contains(element.id)
             .observe(on: MainScheduler.asyncInstance)
-            .bind(to: tableView.rx.items) { (tableView, index, element) in
-                let cell = UserDetailTableViewCell(style: .default, reuseIdentifier: "cell")
+            .bind(to: tableView.rx.items) { [weak self] (tableView, index, element) in
+                let reuseId = String(describing: UserDetailTableViewCell.self)
+                let indexPath = IndexPath(row: index, section: .zero)
+                let cell = tableView.dequeueReusableCell(withIdentifier: reuseId, for: indexPath) as! UserDetailTableViewCell
                 cell.user = element
+                cell.isBookmarked = self?.currentState?.bookmarks.contains(element) == true
                 return cell
             }.disposed(by: disposeBag)
         

@@ -10,7 +10,7 @@ import Foundation
 
 public protocol Serializer {
     
-    var econder: JSONEncoder { get }
+    var encoder: JSONEncoder { get }
     var decoder: JSONDecoder { get }
     
     func jsonObject<Object: Encodable>(_ object: Object) -> [String: Any]?

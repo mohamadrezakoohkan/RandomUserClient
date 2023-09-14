@@ -10,13 +10,13 @@ import Foundation
 
 public struct UserSerializer: Serializer {
     
-    private let dateFormatter: DateFormatter = {
+    internal let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         return formatter
     }()
     
-    public var econder: JSONEncoder {
+    public var encoder: JSONEncoder {
         let jsonEcoder = JSONEncoder()
         jsonEcoder.dateEncodingStrategy = .formatted(dateFormatter)
         return jsonEcoder

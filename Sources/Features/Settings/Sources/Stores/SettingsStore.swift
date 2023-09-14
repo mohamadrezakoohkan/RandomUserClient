@@ -23,7 +23,7 @@ enum SettingsEffect: Effect {
 
 final class SettingsStore: Store<SettingsState, SettingsAction, SettingsEffect, SettingsCoordinator> {
     
-    override func handle(_ action: SettingsAction, currentState: SettingsState, sendEffect: @escaping (SettingsEffect) -> Void, sendAction: @escaping (SettingsAction) -> Void) {
+    override func handle(_ action: SettingsAction, sendEffect: @escaping (SettingsEffect) -> Void, sendAction: @escaping (SettingsAction) -> Void) {
         
     }
     

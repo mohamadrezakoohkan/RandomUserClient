@@ -9,12 +9,15 @@
 import Foundation
 import Services
 import Networking
+import Storage
 
 final class ServiceProvider {
     
     let userService: UserService
+    let bookmarkService: BookmarkService
     
-    init(httpClient: HttpClient) {
+    init(httpClient: HttpClient, storage: Storage) {
         self.userService = UserServiceProvider(httpClient: httpClient)
+        self.bookmarkService = BookmarkServiceProvider(storage: storage)
     }
 }

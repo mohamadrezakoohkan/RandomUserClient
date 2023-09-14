@@ -10,6 +10,7 @@ import ProjectDescriptionHelpers
 
 let project = Graph.shared.entities.project(
     targets: [
-        ModuleTarget(type: .main)
+        ModuleTarget(type: .main),
+        ModuleTarget(type: .unitTests)
     ]
 )

@@ -13,6 +13,8 @@ import Kingfisher
 
 public final class UserDetailTableViewCell: UITableViewCell {
     
+    public static let rowHeight: CGFloat = 120
+    
     private var cardViewHeight: NSLayoutConstraint? = nil
     private let cardView: UIView = {
        let view = UIView()
@@ -62,14 +64,12 @@ public final class UserDetailTableViewCell: UITableViewCell {
         return label
     }()
     
-    private let bookmarkButton: UIButton = {
-        let button = UIButton()
-        button.tintColor = CommonUIAsset.actionPrimary.color
-        button.setTitleColor(CommonUIAsset.actionPrimary.color, for: .normal)
-        button.contentHorizontalAlignment = .left
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        button.setTitle(CommonUtilsStrings.Generic.Bookmark.Add.title, for: .normal)
-        return button
+    private let bookmarkLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = CommonUIAsset.actionPrimary.color
+        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.textAlignment = .left
+        return label
     }()
     
     
@@ -85,6 +85,7 @@ public final class UserDetailTableViewCell: UITableViewCell {
     public var isBookmarked: Bool = false {
         didSet {
             cardView.backgroundColor = isBookmarked ? CommonUIAsset.actionSecondary.color : CommonUIAsset.containerSecondary.color
+            bookmarkLabel.text = isBookmarked ? CommonUtilsStrings.Generic.Bookmark.Remove.title : CommonUtilsStrings.Generic.Bookmark.Add.title
         }
     }
     
@@ -120,7 +121,7 @@ public final class UserDetailTableViewCell: UITableViewCell {
         photoStackView.addArrangedSubview(userAttributesStackView)
         userAttributesStackView.addArrangedSubview(userNameLabel)
         userAttributesStackView.addArrangedSubview(userEmailLabel)
-        userAttributesStackView.addArrangedSubview(bookmarkButton)
+        userAttributesStackView.addArrangedSubview(bookmarkLabel)
     }
     
     public override func prepareForReuse() {

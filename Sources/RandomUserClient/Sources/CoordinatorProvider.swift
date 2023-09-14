@@ -62,7 +62,8 @@ final class UserCatalogCoordinatorProvider: ExternalCoordinatorProvider {
     func getCoordinator(_ navigationController: UINavigationController) -> Coordinator {
         UserCatalogCoordinator(
             navigationController: navigationController,
-            userService: serviceProvider.userService
+            userService: serviceProvider.userService,
+            bookmarkService: serviceProvider.bookmarkService
         )
     }
 }
@@ -78,7 +79,7 @@ final class BookmarksCoordinatorProvider: ExternalCoordinatorProvider {
     func getCoordinator(_ navigationController: UINavigationController) -> Coordinator {
         BookmarksCoordinator(
             navigationController: navigationController,
-            userService: serviceProvider.userService
+            bookmarkService: serviceProvider.bookmarkService
         )
     }
 }
