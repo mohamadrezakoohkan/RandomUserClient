@@ -15,6 +15,7 @@ open class ViewController<AnyViewStore: ViewStore>: UIViewController, ViewStoreC
     public let disposeBag = DisposeBag()
     public let store: AnyViewStore
     public let schedular: ImmediateSchedulerType
+    public var currentState: AnyViewStore.AnyState?
 
     open var swipeBackEnabled: Bool {
         return true
@@ -76,7 +77,7 @@ open class ViewController<AnyViewStore: ViewStore>: UIViewController, ViewStoreC
     }
     
     open func update(withState state: AnyViewStore.AnyState) {
-        
+        currentState = state
     }
     
     open func update(fromStream stateObservable: Observable<AnyViewStore.AnyState>) {

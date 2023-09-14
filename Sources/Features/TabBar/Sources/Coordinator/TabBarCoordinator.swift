@@ -26,43 +26,34 @@ public final class TabBarCoordinator: Coordinator {
         self.userCatalogCoordinatorProvider = userCatalogCoordinatorProvider
         self.bookmarksCoordinatorProvider = bookmarksCoordinatorProvider
         self.settingsCoordinatorProvider = settingsCoordinatorProvider
+        navigationController.setNavigationBarHidden(true, animated: false)
         super.init(navigationController: navigationController)
     }
     
     public override func start() {
-        let tabBarController = UITabBarController()
+        let tabBarController = getTabBarController()
         
-        let userCatalogNavigationController = UINavigationController()
+        let userCatalogNavigationController = getSubNavigationController()
         let userCatalogCoordinator = userCatalogCoordinatorProvider.getCoordinator(userCatalogNavigationController)
         store(coordinator: userCatalogCoordinator)
         userCatalogCoordinator.start()
-        userCatalogNavigationController.tabBarItem = UITabBarItem(
-            title: nil,
-            image: CommonUIAsset.Icons.person(filled: false).image,
-            selectedImage: CommonUIAsset.Icons.person(filled: true).image
-        )
+        userCatalogNavigationController.viewControllers.first?.navigationItem.title = TabBarStrings.Users.Tab.Item.title
+        userCatalogNavigationController.tabBarItem = getTabBarItem(icon: .person(filled: false), selectedIcon: .person(filled: true))
         
-        let bookmarksNavigationController = UINavigationController()
+        let bookmarksNavigationController = getSubNavigationController()
         let bookmarksCoordinator = bookmarksCoordinatorProvider.getCoordinator(bookmarksNavigationController)
         store(coordinator: bookmarksCoordinator)
         bookmarksCoordinator.start()
-        bookmarksNavigationController.tabBarItem = UITabBarItem(
-            title: nil,
-            image: CommonUIAsset.Icons.bookmark(filled: false).image,
-            selectedImage: CommonUIAsset.Icons.bookmark(filled: true).image
-        )
+        bookmarksNavigationController.viewControllers.first?.navigationItem.title = TabBarStrings.Bookmarks.Tab.Item.title
+        bookmarksNavigationController.tabBarItem = getTabBarItem(icon: .bookmark(filled: false), selectedIcon: .bookmark(filled: true))
         
-        let settingsNavigationController = UINavigationController()
+        let settingsNavigationController = getSubNavigationController()
         let settingsCoordinator = settingsCoordinatorProvider.getCoordinator(settingsNavigationController)
         store(coordinator: bookmarksCoordinator)
         settingsCoordinator.start()
-        settingsNavigationController.tabBarItem = UITabBarItem(
-            title: nil,
-            image: CommonUIAsset.Icons.gearshape(filled: false).image,
-            selectedImage: CommonUIAsset.Icons.gearshape(filled: true).image
-        )
-        
-        tabBarController.tabBar.tintColor = CommonUIAsset.actionPrimary.color
+        settingsNavigationController.viewControllers.first?.navigationItem.title = TabBarStrings.Settings.Tab.Item.title
+        settingsNavigationController.tabBarItem = getTabBarItem(icon: .gearshape(filled: false), selectedIcon: .gearshape(filled: true))
+
         tabBarController.setViewControllers([
             userCatalogNavigationController,
             bookmarksNavigationController,
@@ -70,5 +61,37 @@ public final class TabBarCoordinator: Coordinator {
         ], animated: true)
         
         navigationController.pushViewController(tabBarController, animated: true)
+    }
+    
+    private func getSubNavigationController() -> UINavigationController {
+        let navigationController = UINavigationController()
+        let appearance = UINavigationBarAppearance()
+        let titleTextAttributes = [NSAttributedString.Key.foregroundColor: CommonUIAsset.contentPrimary.color]
+        appearance.titleTextAttributes = titleTextAttributes
+        appearance.largeTitleTextAttributes = titleTextAttributes
+        appearance.backgroundColor = CommonUIAsset.containerPrimary.color
+        navigationController.navigationBar.standardAppearance = appearance
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+        return navigationController
+
+    }
+    
+    private func getTabBarController() -> UITabBarController {
+        let tabBarController = UITabBarController()
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.backgroundColor = CommonUIAsset.containerPrimary.color
+        tabBarController.tabBar.tintColor = CommonUIAsset.actionPrimary.color
+        tabBarController.tabBar.unselectedItemTintColor = CommonUIAsset.contentPrimary.color
+        tabBarController.tabBar.backgroundColor = CommonUIAsset.containerPrimary.color
+        tabBarController.tabBar.standardAppearance = tabBarAppearance
+        return tabBarController
+    }
+    
+    private func getTabBarItem(icon: CommonUIAsset.Icons, selectedIcon: CommonUIAsset.Icons) -> UITabBarItem {
+        UITabBarItem(
+            title: nil,
+            image: icon.image,
+            selectedImage: selectedIcon.image
+        )
     }
 }

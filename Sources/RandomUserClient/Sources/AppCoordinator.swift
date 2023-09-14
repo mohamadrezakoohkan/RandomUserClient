@@ -10,11 +10,20 @@ import Foundation
 import UIKit
 import CommonUtils
 import Intro
+import Entities
 
 final class AppCoordinator: Coordinator {
     
+    private let serviceProvider: ServiceProvider
+    
+    public init(navigationController: UINavigationController, serviceProvider: ServiceProvider) {
+        self.serviceProvider = serviceProvider
+        super.init(navigationController: navigationController)
+    }
+        
     override func start() {
-        let coordinator = IntroCoordinatorProvider().getCoordinator(navigationController)
+        let coordinatorProvider = IntroCoordinatorProvider(serviceProvider: serviceProvider)
+        let coordinator = coordinatorProvider.getCoordinator(navigationController)
         store(coordinator: coordinator)
         coordinator.start()
     }

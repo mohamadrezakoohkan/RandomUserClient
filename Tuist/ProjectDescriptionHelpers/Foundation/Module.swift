@@ -145,7 +145,12 @@ public struct Module: Hashable {
                 let targetExtension = moduleTarget.type.extensionName
                 let targetName = targetExtension == "" ? name : targetExtension
                 let targetDependencies = moduleTarget.dependencies.map { $0.targetDependency }
-                return target(targetName, settings: settings, dependencies: targetDependencies + sharedDependencies.map(\.targetDependency))
+                return target(
+                    targetName,
+                    settings: settings,
+                    dependencies: targetDependencies + sharedDependencies.map(\.targetDependency),
+                    coreDataModels: moduleTarget.coreDataModels
+                )
             }
         )
     }
@@ -153,7 +158,8 @@ public struct Module: Hashable {
     public func target(
         _ targetName: String,
         settings: Settings,
-        dependencies: [TargetDependency] = []
+        dependencies: [TargetDependency] = [],
+        coreDataModels: [CoreDataModel]
     ) -> Target {
         let isLauncher = type == .launcher && isMainTarget(targetName)
         let isExample = targetName.contains(ModuleTargetType.example.extensionName)
@@ -170,7 +176,8 @@ public struct Module: Hashable {
             resources: resourceFilePattern(forTarget: targetName),
             scripts: [],
             dependencies: dependencies + internalDependencies,
-            settings: settings
+            settings: settings,
+            coreDataModels: coreDataModels
         )
     }
     

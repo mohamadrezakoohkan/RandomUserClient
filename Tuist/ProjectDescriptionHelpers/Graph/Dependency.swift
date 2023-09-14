@@ -25,6 +25,7 @@ public enum Dependency: CaseIterable {
     
     case rxSwift
     case rxCocoa
+    case kingfisher
     
     public var targetDependency: TargetDependency {
         switch self {
@@ -54,6 +55,8 @@ public enum Dependency: CaseIterable {
             return TargetDependency.external(name: "RxSwift")
         case .rxCocoa:
             return TargetDependency.external(name: "RxCocoa")
+        case .kingfisher:
+            return TargetDependency.external(name: "Kingfisher")
         }
     }
 }

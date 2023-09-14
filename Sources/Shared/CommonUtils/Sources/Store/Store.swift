@@ -11,6 +11,7 @@ import RxSwift
 
 open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoordinator: Coordinator>: ViewStore {
     
+    public var currentState: AnyState { try! _state.value() }
     private let _state: BehaviorSubject<AnyState>
     public var state: Observable<AnyState> {
         return _state.asObservable()
@@ -23,6 +24,7 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoord
     }
     
     public let schedular: ImmediateSchedulerType
+    public let disposeBag = DisposeBag()
     public weak var coordinator: AnyCoordinator?
     
     public init(initialState: AnyState, schedular: ImmediateSchedulerType = MainScheduler.asyncInstance) {
@@ -33,11 +35,10 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoord
     
     open func handle(
         _ action: AnyAction,
-        currentState: AnyState,
         sendEffect: @escaping (AnyEffect) -> Void,
         sendAction: @escaping (AnyAction) -> Void
     ) {
-        fatalError("handle(action:currentState:sendEffect:sendAction:) not implemented by subclass \(self)")
+        fatalError("handle(action:sendEffect:sendAction:) not implemented by subclass \(self)")
     }
     
     open func reduce(_ effect: AnyEffect, currentState: AnyState) -> AnyState {
@@ -45,20 +46,13 @@ open class Store<AnyState: State, AnyAction: Action, AnyEffect: Effect, AnyCoord
     }
     
     private func dispatch(_ action: AnyAction) {
-        do {
-            let currentState = try _state.value()
-            handle(action, currentState: currentState) { [weak self] effect in
+            handle(action) { [weak self] effect in
                 guard let self else { return }
-                self._state.onNext(reduce(effect, currentState: currentState))
+                self._state.onNext(reduce(effect, currentState: self.currentState))
             } sendAction: { [weak self] action in
                 guard let self else { return }
                 self._action.onNext(action)
             }
-        } catch {
-            #if DEBUG
-            print("dispatch(action:) failed to read state \(self)")
-#endif
-        }
     }
     
     public func subscribe() {

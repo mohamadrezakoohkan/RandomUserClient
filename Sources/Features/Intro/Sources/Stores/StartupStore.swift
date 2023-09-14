@@ -27,7 +27,7 @@ enum StartupEffect: Effect {
 
 final class StartupStore: Store<StartupState, StartupAction, StartupEffect, IntroCoordinator> {
     
-    override func handle(_ action: StartupAction, currentState: StartupState, sendEffect: @escaping (StartupEffect) -> Void, sendAction: @escaping (StartupAction) -> Void) {
+    override func handle(_ action: StartupAction, sendEffect: @escaping (StartupEffect) -> Void, sendAction: @escaping (StartupAction) -> Void) {
         switch action {
         case .appear:
             sendEffect(.setLoading(true))
