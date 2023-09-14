@@ -21,7 +21,7 @@ public final class UserCatalogCoordinator: Coordinator {
     }
     
     public override func start() {
-        let store = UsersListStore(initialState: .init(), userService: userService)
+        let store = UsersListStore(initialState: .init(allUsers: [], users: []), userService: userService)
         store.coordinator = self
         let viewController = UsersListViewController(store: store)
         navigationController.pushViewController(viewController, animated: true)

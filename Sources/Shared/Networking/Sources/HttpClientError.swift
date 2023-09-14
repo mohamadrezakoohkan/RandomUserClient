@@ -10,9 +10,9 @@ import Foundation
 
 public enum HttpClientError: Error, LocalizedError {
     case invalidURL
-    case requestFailed
+    case requestFailed(URLResponse?)
     case invalidResponse
-    case decodingFailed
+    case decodingFailed(Error)
     
     public var errorDescription: String? {
         switch self {

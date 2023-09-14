@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Street: Codable {
+public struct Street: DataModel {
     public let number: Int
     public let name: String
 }

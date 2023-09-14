@@ -29,11 +29,12 @@ public struct HttpClient {
         
         var queryItems = [URLQueryItem]()
         for param in params {
-            queryItems.append(URLQueryItem(name: param.key, value: param.value))
+            if param.value != nil {
+                queryItems.append(URLQueryItem(name: param.key, value: param.value))
+            }
         }
         
         components.queryItems = queryItems
-        
         
         guard let url = components.url else {
             return Single.error(HttpClientError.invalidURL)
@@ -48,14 +49,14 @@ public struct HttpClient {
                 }
                 
                 guard let data = data else {
-                    single(.failure(HttpClientError.requestFailed))
+                    single(.failure(HttpClientError.requestFailed(response)))
                     return
                 }
                 
                 do {
                     single(.success(try decoder.decode(T.self, from: data)))
-                } catch {
-                    single(.failure(HttpClientError.decodingFailed))
+                } catch let decodingError {
+                    single(.failure(HttpClientError.decodingFailed(decodingError)))
                 }
             }
             

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct DateOfBirth: Codable {
+public struct DateOfBirth: DataModel {
     public let date: Date
     public let age: Int
 }

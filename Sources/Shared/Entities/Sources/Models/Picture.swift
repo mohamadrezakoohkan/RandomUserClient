@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Picture: Codable {
+public struct Picture: DataModel {
     public let large: String
     public let medium: String
     public let thumbnail: String

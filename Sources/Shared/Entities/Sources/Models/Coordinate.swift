@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Coordinate: Codable {
+public struct Coordinate: DataModel {
     public let latitude: String
     public let longitude: String
 }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Login: Codable {
+public struct Login: DataModel {
     public let uuid: String
     public let username: String
     public let password: String

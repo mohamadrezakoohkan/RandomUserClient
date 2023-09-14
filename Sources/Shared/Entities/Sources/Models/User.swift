@@ -8,12 +8,12 @@
 
 import Foundation
 
-public struct UserID: Codable {
+public struct UserID: DataModel {
     public let name: String?
     public let value: String?
 }
 
-public struct User: Codable {
+public struct User: DataModel {
     public let gender: Gender
     public let name: Name
     public let location: Location

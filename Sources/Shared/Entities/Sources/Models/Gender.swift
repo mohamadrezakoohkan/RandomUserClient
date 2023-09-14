@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum Gender: String, Codable {
+public enum Gender: String, DataModel {
     case male
     case female
 }

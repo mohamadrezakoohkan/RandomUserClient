@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Registration: Codable {
+public struct Registration: DataModel {
     public let date: Date
     public let age: Int
 }

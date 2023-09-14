@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Timezone: Codable {
+public struct Timezone: DataModel {
     public let offset: String
     public let description: String
 }

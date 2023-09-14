@@ -8,12 +8,12 @@
 
 import Foundation
 
-public struct Name: Codable {
+public struct Name: DataModel {
     public let title: String
     public let first: String
     public let last: String
     
     public var fullName: String {
-        title + " " + first + last
+        title + "." + first + " " + last
     }
 }
