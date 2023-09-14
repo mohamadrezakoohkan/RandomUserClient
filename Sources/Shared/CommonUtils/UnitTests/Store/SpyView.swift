@@ -12,10 +12,9 @@ import Foundation
 final class SpyView: ViewController<MockStore> {
     
     private (set) var stateUpdated: Bool = false
-    private (set) var currentState: MockState?
     
     override func update(withState state: MockState) {
-        currentState = state
+        super.update(withState: state)
         stateUpdated = true
     }
 }

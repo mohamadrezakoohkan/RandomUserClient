@@ -10,6 +10,6 @@ import ProjectDescriptionHelpers
 
 let project = Graph.shared.commonUI.project(
     targets: [
-        ModuleTarget(type: .main, dependencies: [.commonUtils, .kingfisher, .rxSwift, .rxCocoa])
+        ModuleTarget(type: .main, dependencies: [.commonUtils, .kingfisher])
     ]
 )

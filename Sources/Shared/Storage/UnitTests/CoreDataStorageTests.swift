@@ -18,7 +18,7 @@ class CoreDataStorageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         disposeBag = DisposeBag()
-        coreDataStorage = CoreDataStorage(inMemory: true)
+        coreDataStorage = CoreDataStorage()
     }
     
     override func tearDown() {

@@ -43,8 +43,8 @@ final class BookmarksListStore: Store<BookmarksListState, BookmarksListAction, B
         switch action {
         case .appear:
             bookmarkService.getBookmarks()
-                .subscribe(onSuccess: { users in
-                    sendEffect(.setBookmarks(users))
+                .subscribe(onSuccess: { bookmarks in
+                    sendEffect(.setBookmarks(bookmarks))
                 }).disposed(by: disposeBag)
         case let .selected(index):
             guard !currentState.bookmarks.isEmpty, index < currentState.bookmarks.count else { return }
@@ -67,7 +67,6 @@ final class BookmarksListStore: Store<BookmarksListState, BookmarksListAction, B
         switch effect {
         case let .setBookmarks(bookmarks):
             return BookmarksListState(bookmarks: bookmarks)
-        }
-        
+        }        
     }
 }

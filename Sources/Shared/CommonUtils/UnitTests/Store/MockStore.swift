@@ -29,7 +29,7 @@ enum MockEffect: Effect {
 
 final class MockStore: Store<MockState, MockAction, MockEffect, Coordinator> {
  
-    override func handle(_ action: MockAction, currentState: MockState, sendEffect: @escaping (MockEffect) -> Void, sendAction: @escaping (MockAction) -> Void) {
+    override func handle(_ action: MockAction, sendEffect: @escaping (MockEffect) -> Void, sendAction: @escaping (MockAction) -> Void) {
         switch action {
         case .increase:
             sendEffect(.setAmount(currentState.amount + 1))
