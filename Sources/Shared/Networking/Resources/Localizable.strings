@@ -1,0 +1,4 @@
+"httpClient.requestError.invalidURL" = "404 - Endpoint is invalid";
+"httpClient.requestError.requestFailed" = "400 - Bad Request";
+"httpClient.requestError.invalidResponse" = "502 - Bad Gateway";
+"httpClient.requestError.decodingFailed" = "501 - Decoding failed";
